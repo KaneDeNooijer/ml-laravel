@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    'open_food_facts' => [
+        'url' => env('OPEN_FOOD_FACTS_URL', 'https://world.openfoodfacts.org'),
+        'user_agent' => env('OPEN_FOOD_FACTS_USER_AGENT', 'LiveList/0.1 (local-demo)'),
+    ],
+
+    'ml' => [
+        'url' => env('ML_SERVICE_URL', 'http://127.0.0.1:8100'),
+        'confidence_threshold' => (float) env('ML_CONFIDENCE_THRESHOLD', 0.70),
+    ],
+
 ];
