@@ -1,13 +1,24 @@
 <?php
 
-use App\Http\Controllers\DemoController;
-use App\Http\Controllers\IngredientCategoryController;
+declare(strict_types=1);
+
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MealController;
-use App\Http\Controllers\ScanController;
+use App\Http\Controllers\ScannerController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', DemoController::class)->name('demo');
-Route::resource('meals', MealController::class)->except('show');
-Route::get('/api/ingredient-categories', IngredientCategoryController::class)->name('ingredient-categories.index');
-Route::post('/api/scans', [ScanController::class, 'store'])->name('scans.store');
-Route::post('/api/scans/{scan}/accept', [ScanController::class, 'accept'])->name('scans.accept');
+Route::resource('/', HomeController::class)
+    ->only(['index'])
+    ->names('home');
+
+Route::resource('account', AccountController::class)
+    ->only(['index'])
+    ->names('account');
+
+Route::resource('scanner', ScannerController::class)
+    ->only(['index'])
+    ->names('scanner');
+
+Route::resource('meals', MealController::class)
+    ->names('meals');

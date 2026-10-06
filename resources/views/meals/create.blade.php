@@ -1,17 +1,15 @@
-@extends('layouts.app', ['title' => 'LiveList · Nieuwe maaltijd'])
+@extends('layouts.app', ['title' => __('ui.meals.new').' · '.config('app.name')])
 
 @section('content')
-    <main class="mx-auto max-w-3xl px-5 py-8">
-        <p class="text-sm font-semibold uppercase tracking-wider text-brand-700">Weekmenu voorbereiden</p>
-        <h1 class="mt-1 text-3xl font-black tracking-tight">Nieuwe maaltijd</h1>
-        <p class="mt-2 text-slate-600">Voer de maaltijd en benodigde ingrediëntcategorieën zelf in.</p>
+    <main class="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
+        <h1 class="text-3xl font-bold tracking-tight">{{ __('ui.meals.new') }}</h1>
 
-        <div class="mt-7">
+        <div class="mt-6">
             <x-bladewind::card>
                 @include('meals._form', [
                     'action' => route('meals.store'),
                     'method' => 'POST',
-                    'submitLabel' => 'Maaltijd aanmaken',
+                    'submitLabel' => __('ui.meals.create'),
                 ])
             </x-bladewind::card>
         </div>

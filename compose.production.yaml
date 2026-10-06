@@ -1,0 +1,55 @@
+services:
+  app:
+    image: ka07ne/laravel-llmaaltijd:latest
+    pull_policy: always
+    init: true
+    environment:
+      APP_NAME: LLMaaltijd
+      APP_ENV: production
+      APP_KEY: ${APP_KEY:?Set APP_KEY before starting the production environment}
+      APP_DEBUG: "false"
+      APP_URL: ${APP_URL:-http://localhost:5678}
+      APP_LOCALE: nl
+      APP_FALLBACK_LOCALE: nl
+      DB_CONNECTION: mongodb
+      MONGODB_URI: mongodb://mongo:27017
+      MONGODB_DATABASE: ${MONGODB_DATABASE:-llmaaltijd}
+      SESSION_DRIVER: file
+      CACHE_STORE: file
+      QUEUE_CONNECTION: sync
+      MAIL_MAILER: log
+      LOG_CHANNEL: stderr
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "${APP_PORT:-5678}:5678"
+    healthcheck:
+      test:
+        - CMD
+        - php
+        - -r
+        - "exit(@file_get_contents('http://127.0.0.1:5678/api/health') === false ? 1 : 0);"
+      interval: 30s
+      timeout: 3s
+      start_period: 20s
+      retries: 3
+
+  mongo:
+    image: mongo:8.0
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test:
+        - CMD
+        - mongosh
+        - --quiet
+        - --eval
+        - "quit(db.adminCommand('ping').ok ? 0 : 1)"
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+
+volumes:
+  mongodb_data:

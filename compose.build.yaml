@@ -1,0 +1,9 @@
+services:
+  app:
+    image: ka07ne/laravel-llmaaltijd:latest
+    build:
+      context: .
+      target: production
+      platforms:
+        - linux/amd64
+        - linux/arm64

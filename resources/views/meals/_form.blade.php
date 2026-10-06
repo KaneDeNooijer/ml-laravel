@@ -1,117 +1,86 @@
-@php
-    $dayLabels = [
-        'Monday' => 'Maandag',
-        'Tuesday' => 'Dinsdag',
-        'Wednesday' => 'Woensdag',
-        'Thursday' => 'Donderdag',
-        'Friday' => 'Vrijdag',
-        'Saturday' => 'Zaterdag',
-        'Sunday' => 'Zondag',
-    ];
-    $formIngredients = old('ingredients', $meal->ingredients ?? [
-        ['label' => 'Yoghurt', 'quantity' => 500, 'unit' => 'g'],
-    ]);
-@endphp
-
-<form action="{{ $action }}" method="POST" class="space-y-7" data-meal-form data-category-url="{{ route('ingredient-categories.index') }}">
+<form action="{{ $action }}" method="POST" class="space-y-7" data-meal-form>
     @csrf
     @if ($method !== 'POST')
         @method($method)
     @endif
 
     @if ($errors->any())
-        <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">Controleer de ingevulde gegevens en voeg minimaal één ingrediënt toe.</div>
+        <x-bladewind::alert type="error" :show_close_icon="false">{{ __('ui.meal_form.error') }}</x-bladewind::alert>
     @endif
 
-    <div class="grid gap-5 sm:grid-cols-2">
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <div class="sm:col-span-2">
-            <label for="name" class="mb-2 block text-sm font-semibold">Naam van de maaltijd</label>
-            <input id="name" name="name" value="{{ old('name', $meal->name) }}" required maxlength="100" placeholder="Bijvoorbeeld Ontbijtprep" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-brand-600 focus:ring-4 focus:ring-brand-100">
+            <x-bladewind::input name="name" label="{{ __('ui.meal_form.name') }}" placeholder="{{ __('ui.meal_form.name_placeholder') }}" :selected_value="old('name', $meal->name)" maxlength="100" required="true" show_validation_error="true" />
         </div>
-        <div>
-            <label for="servings" class="mb-2 block text-sm font-semibold">Aantal porties</label>
-            <input id="servings" name="servings" type="number" min="1" max="50" value="{{ old('servings', $meal->servings ?? 4) }}" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-brand-600 focus:ring-4 focus:ring-brand-100">
-        </div>
-        <div>
-            <label for="prep_day" class="mb-2 block text-sm font-semibold">Prep-dag</label>
-            <select id="prep_day" name="prep_day" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-brand-600 focus:ring-4 focus:ring-brand-100">
-                @foreach ($dayLabels as $day => $label)
-                    <option value="{{ $day }}" @selected(old('prep_day', $meal->prep_day ?? 'Sunday') === $day)>{{ $label }}</option>
+        <x-bladewind::input name="servings" label="{{ __('ui.meal_form.servings') }}" :selected_value="old('servings', $meal->servings)" numeric="true" min="1" max="50" required="true" show_validation_error="true" />
+        <div class="[&_.bw-select-item]:text-slate-900 [&_.bw-select-item:hover]:text-white [&_.display-area]:text-slate-900">
+            <x-bladewind::select name="prep_day_select" data="manual" data_serialize_as="prep_day" label="{{ __('ui.meal_form.prep_day') }}" :selected_value="old('prep_day', $meal->prep_day?->value)" required="true" show_validation_error="true">
+                @foreach ($prepDays as $day => $label)
+                    <x-bladewind::select.item value="{{ $day }}" label="{{ $label }}" />
                 @endforeach
-            </select>
+            </x-bladewind::select>
         </div>
     </div>
 
     <fieldset>
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-                <legend class="text-lg font-bold">Ingrediënten</legend>
-                <p class="mt-1 text-sm text-slate-500">Zoek in alle Open Food Facts-categorieën of typ zelf een ingrediënt.</p>
-            </div>
-            <button type="button" data-add-ingredient class="rounded-xl border border-brand-600 px-4 py-2 text-sm font-semibold text-brand-700 hover:bg-brand-50">Ingrediënt toevoegen</button>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <legend class="text-lg font-bold">{{ __('ui.meal_form.ingredients') }}</legend>
+            <x-bladewind::button class="w-full sm:w-auto" type="secondary" data-add-ingredient icon="plus" size="small" radius="medium" uppercasing="false">{{ __('ui.meal_form.add_ingredient') }}</x-bladewind::button>
         </div>
 
-        <datalist id="ingredient-categories">
-            @foreach ($standardIngredients as $category)
-                <option value="{{ $category }}"></option>
-            @endforeach
-        </datalist>
-
         <div class="mt-4 space-y-3" data-ingredient-list>
-            @foreach ($formIngredients as $index => $ingredient)
-                <div class="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-[minmax(0,1fr)_140px_90px_auto]" data-ingredient-row>
-                    <div>
-                        <label class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">Categorie</label>
-                        <input name="ingredients[{{ $index }}][label]" value="{{ $ingredient['label'] ?? '' }}" list="ingredient-categories" required autocomplete="off" placeholder="Zoek bijvoorbeeld rijst" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none focus:border-brand-600 focus:ring-4 focus:ring-brand-100" data-category-input>
-                        <p class="mt-2 text-xs text-slate-500" data-category-status>Typ om in Open Food Facts te zoeken; eigen categorieën zijn ook toegestaan.</p>
+            @foreach (old('ingredients', $meal->ingredients) as $index => $ingredient)
+                <x-bladewind::card compact="true" :has_shadow="false" data-ingredient-row>
+                    <div class="grid grid-cols-1 items-end gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_140px_150px_auto]">
+                        <div class="sm:col-span-2 lg:col-span-1">
+                            <x-bladewind::input name="ingredient_label_{{ $index }}" label="{{ __('ui.meal_form.ingredient') }}" :selected_value="$ingredient['label'] ?? ''" placeholder="{{ __('ui.meal_form.ingredient_placeholder') }}" autocomplete="off" required="true" :add_clearing="false" />
+                        </div>
+                        <div>
+                            <x-bladewind::input name="ingredient_quantity_{{ $index }}" label="{{ __('ui.meal_form.quantity') }}" :selected_value="$ingredient['quantity'] ?? null" numeric="true" required="true" :add_clearing="false" />
+                        </div>
+                        <div class="pb-1">
+                            <span class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('ui.meal_form.unit') }}</span>
+                            <div class="flex gap-2">
+                                @foreach (['g', 'ml'] as $unit)
+                                    <x-bladewind::radio name="ingredient_unit_{{ $index }}" value="{{ $unit }}" label="{{ $unit }}" :checked="($ingredient['unit'] ?? null) === $unit" :add_clearing="false" />
+                                @endforeach
+                            </div>
+                        </div>
+                        <div class="sm:col-span-2 lg:col-span-1">
+                            <x-bladewind::button class="w-full lg:w-auto" type="secondary" color="red" outline="true" data-remove-ingredient icon="trash" size="small" radius="medium" uppercasing="false">{{ __('ui.common.delete') }}</x-bladewind::button>
+                        </div>
                     </div>
-                    <div>
-                        <label class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">Hoeveelheid</label>
-                        <input name="ingredients[{{ $index }}][quantity]" type="number" min="1" step="1" value="{{ $ingredient['quantity'] ?? 100 }}" required class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none focus:border-brand-600 focus:ring-4 focus:ring-brand-100">
-                    </div>
-                    <div>
-                        <label class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">Eenheid</label>
-                        <select name="ingredients[{{ $index }}][unit]" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none focus:border-brand-600 focus:ring-4 focus:ring-brand-100">
-                            @foreach (['g', 'ml'] as $unit)
-                                <option value="{{ $unit }}" @selected(($ingredient['unit'] ?? 'g') === $unit)>{{ $unit }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="flex items-end">
-                        <button type="button" data-remove-ingredient class="w-full rounded-xl px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 sm:w-auto">Verwijder</button>
-                    </div>
-                </div>
+                </x-bladewind::card>
             @endforeach
         </div>
 
         <template data-ingredient-template>
-            <div class="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-[minmax(0,1fr)_140px_90px_auto]" data-ingredient-row>
-                <div>
-                    <label class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">Categorie</label>
-                    <input name="ingredients[__INDEX__][label]" list="ingredient-categories" required autocomplete="off" placeholder="Zoek bijvoorbeeld rijst" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none focus:border-brand-600 focus:ring-4 focus:ring-brand-100" data-category-input>
-                    <p class="mt-2 text-xs text-slate-500" data-category-status>Typ om in Open Food Facts te zoeken; eigen categorieën zijn ook toegestaan.</p>
+            <x-bladewind::card compact="true" :has_shadow="false" data-ingredient-row>
+                <div class="grid grid-cols-1 items-end gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_140px_150px_auto]">
+                    <div class="sm:col-span-2 lg:col-span-1">
+                        <x-bladewind::input name="ingredient_label___INDEX__" label="{{ __('ui.meal_form.ingredient') }}" placeholder="{{ __('ui.meal_form.ingredient_placeholder') }}" autocomplete="off" required="true" :add_clearing="false" />
+                    </div>
+                    <div>
+                        <x-bladewind::input name="ingredient_quantity___INDEX__" label="{{ __('ui.meal_form.quantity') }}" numeric="true" required="true" :add_clearing="false" />
+                    </div>
+                    <div class="pb-1">
+                        <span class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('ui.meal_form.unit') }}</span>
+                        <div class="flex gap-2">
+                            <x-bladewind::radio name="ingredient_unit___INDEX__" value="g" label="g" :add_clearing="false" />
+                            <x-bladewind::radio name="ingredient_unit___INDEX__" value="ml" label="ml" :add_clearing="false" />
+                        </div>
+                    </div>
+                    <div class="sm:col-span-2 lg:col-span-1">
+                        <x-bladewind::button class="w-full lg:w-auto" type="secondary" color="red" outline="true" data-remove-ingredient icon="trash" size="small" radius="medium" uppercasing="false">{{ __('ui.common.delete') }}</x-bladewind::button>
+                    </div>
                 </div>
-                <div>
-                    <label class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">Hoeveelheid</label>
-                    <input name="ingredients[__INDEX__][quantity]" type="number" min="1" step="1" value="100" required class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none focus:border-brand-600 focus:ring-4 focus:ring-brand-100">
-                </div>
-                <div>
-                    <label class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">Eenheid</label>
-                    <select name="ingredients[__INDEX__][unit]" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none focus:border-brand-600 focus:ring-4 focus:ring-brand-100">
-                        <option value="g">g</option>
-                        <option value="ml">ml</option>
-                    </select>
-                </div>
-                <div class="flex items-end">
-                    <button type="button" data-remove-ingredient class="w-full rounded-xl px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 sm:w-auto">Verwijder</button>
-                </div>
-            </div>
+            </x-bladewind::card>
         </template>
-        <p class="mt-3 text-xs text-slate-500">Bij opslaan vertaalt Laravel de gekozen naam naar de canonieke Open Food Facts-tag.</p>
     </fieldset>
 
-    <div class="flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row">
-        <button type="submit" class="rounded-xl bg-brand-700 px-5 py-3 font-semibold text-white shadow-sm hover:bg-brand-900">{{ $submitLabel }}</button>
-        <a href="{{ route('meals.index') }}" class="rounded-xl border border-slate-300 px-5 py-3 text-center font-semibold text-slate-700 hover:bg-slate-50">Annuleren</a>
+    <x-bladewind::divider spacing="small" />
+    <div class="flex flex-col gap-3 sm:flex-row">
+        <x-bladewind::button class="w-full sm:w-auto" can_submit="true" type="secondary" icon="check" radius="medium" uppercasing="false">{{ $submitLabel }}</x-bladewind::button>
+        <x-bladewind::button class="w-full sm:w-auto" tag="a" href="{{ route('meals.index') }}" type="secondary" icon="arrow-left" radius="medium" uppercasing="false">{{ __('ui.common.cancel') }}</x-bladewind::button>
     </div>
 </form>

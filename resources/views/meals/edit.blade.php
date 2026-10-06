@@ -1,17 +1,15 @@
-@extends('layouts.app', ['title' => 'LiveList · Maaltijd bewerken'])
+@extends('layouts.app', ['title' => __('ui.meals.edit').' · '.config('app.name')])
 
 @section('content')
-    <main class="mx-auto max-w-3xl px-5 py-8">
-        <p class="text-sm font-semibold uppercase tracking-wider text-brand-700">Weekmenu voorbereiden</p>
-        <h1 class="mt-1 text-3xl font-black tracking-tight">Maaltijd bewerken</h1>
-        <p class="mt-2 text-slate-600">Bij opslaan worden bestaande productkeuzes gewist, zodat hoeveelheden en voedingswaarden kloppen.</p>
+    <main class="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
+        <h1 class="text-3xl font-bold tracking-tight">{{ __('ui.meals.edit') }}</h1>
 
-        <div class="mt-7">
+        <div class="mt-6">
             <x-bladewind::card>
                 @include('meals._form', [
                     'action' => route('meals.update', $meal),
                     'method' => 'PUT',
-                    'submitLabel' => 'Wijzigingen opslaan',
+                    'submitLabel' => __('ui.meals.save'),
                 ])
             </x-bladewind::card>
         </div>

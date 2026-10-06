@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
+    protected $connection = 'mongodb';
+
     /**
      * Run the migrations.
      */
@@ -14,7 +18,7 @@ return new class extends Migration
             ->table('meals')
             ->get()
             ->each(function (object $meal): void {
-                $updates = collect(['ingredients', 'selections'])
+                $updates = collect(['ingredients'])
                     ->mapWithKeys(function (string $field) use ($meal): array {
                         $value = data_get($meal, $field);
 
@@ -42,7 +46,7 @@ return new class extends Migration
             ->table('meals')
             ->get()
             ->each(function (object $meal): void {
-                $updates = collect(['ingredients', 'selections'])
+                $updates = collect(['ingredients'])
                     ->mapWithKeys(function (string $field) use ($meal): array {
                         $value = data_get($meal, $field);
 
