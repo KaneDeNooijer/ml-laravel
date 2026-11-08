@@ -8,9 +8,6 @@ Ontbreekt die in Open Food Facts, dan schat de Python-service
 [ml-python](https://github.com/KaneDeNooijer/ml-python) hem met machine learning. De app laat zien dat het om een
 schatting gaat, hoe zeker het model is en op welke kenmerken het lette.
 
-De analyse achter de keuzes staat in
-[ml-python/docs/analyse.md](https://github.com/KaneDeNooijer/ml-python/blob/master/docs/analyse.md).
-
 ---
 
 ## Voor de docent: opzetten en testen
