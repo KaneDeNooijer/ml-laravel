@@ -3,6 +3,7 @@
 @section('content')
     <x-drawer
         data-scanner-page
+        data-product-url="{{ route('products.show', ['product' => '00000000']) }}"
         content-id="scan-drawer-content"
         initial-state="split"
         :label="__('ui.scanner.drawer_label')"

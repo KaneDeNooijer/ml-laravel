@@ -31,4 +31,20 @@ if (page !== null) {
     };
 
     page.addEventListener('drawer-state-changed', syncScannerWithDrawer);
+
+    /**
+     * Opens the product page, where the ML service fills in a missing NOVA group.
+     *
+     * @param event Event emitted by the barcode scanner with the recognized barcode.
+     */
+    const openProduct = (event: Event): void => {
+        const barcode = (event as CustomEvent<{ barcode: string }>).detail.barcode;
+        const productUrl = page.dataset.productUrl;
+
+        if (productUrl !== undefined && /^\d{8,14}$/.test(barcode)) {
+            window.location.assign(productUrl.replace('00000000', barcode));
+        }
+    };
+
+    page.addEventListener('barcode-scanned', openProduct);
 }

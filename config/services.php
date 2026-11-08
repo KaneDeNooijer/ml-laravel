@@ -16,4 +16,9 @@ return [
     |
     */
 
+    'python_api' => [
+        'url' => env('PYTHON_API_URL', 'http://host.docker.internal:8101'),
+        'timeout' => (int) env('PYTHON_API_TIMEOUT', 30),
+    ],
+
 ];
